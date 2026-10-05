@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  AGENT
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  PENDING
+  CLOSED
+}
+
+enum Urgency {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum Direction {
+  INBOUND
+  OUTBOUND
+}
+
+model User {
+  id               String   @id @default(cuid())
+  name             String
+  email            String   @unique
+  password         String
+  role             Role     @default(AGENT)
+  preferredLanguage String  @default("en")
+  createdAt        DateTime @default(now())
+
+  assignedTickets  Ticket[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  language  String?
+  createdAt DateTime @default(now())
+
+  tickets   Ticket[]
+}
+
+model Ticket {
+  id            String       @id @default(cuid())
+  customerId    String
+  customer      Customer     @relation(fields: [customerId], references: [id])
+  assignedToId  String?
+  assignedTo    User?        @relation(fields: [assignedToId], references: [id])
+
+  subject       String
+  status        TicketStatus @default(OPEN)
+  topic         String?
+  urgency       Urgency      @default(NORMAL)
+  summary       String?
+  aiStatus      String       @default("pending")
+
+  lastMessageAt DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+
+  messages      Message[]
+}
+
+model Message {
+  id                 String    @id @default(cuid())
+  ticketId           String
+  ticket             Ticket    @relation(fields: [ticketId], references: [id])
+
+  direction          Direction
+  originalText       String
+  originalLanguage   String?
+  translatedText     String?
+  translatedLanguage String?
+
+  createdAt          DateTime  @default(now())
+}
+
+model AiLog {
+  id         String   @id @default(cuid())
+  task       String   // "classify" | "translate"
+  model      String   // the actual NVIDIA model used
+  success    Boolean
+  latencyMs  Int
+  error      String?
+  createdAt  DateTime @default(now())
+}
