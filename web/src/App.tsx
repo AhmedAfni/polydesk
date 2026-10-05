@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Inbox } from './pages/Inbox'
 import { TicketDetail } from './pages/TicketDetail'
 import { Login } from './pages/Login'
+import { SubmitTicket } from './pages/SubmitTicket'
 import { AdminLogs } from './pages/AdminLogs'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -10,6 +11,7 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/submit" element={<SubmitTicket />} />
         <Route
           path="/"
           element={

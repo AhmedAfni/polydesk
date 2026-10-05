@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import api from '../lib/api'
 import { saveToken } from '../lib/auth'
 
@@ -128,6 +128,15 @@ export function Login() {
             )}
           </button>
         </form>
+
+        <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+          <Link
+            to="/submit"
+            className="text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
+          >
+            Submit a support request instead &rarr;
+          </Link>
+        </div>
       </div>
     </div>
   )
