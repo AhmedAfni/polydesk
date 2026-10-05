@@ -1,14 +1,24 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import api from '../lib/api'
-import { saveToken } from '../lib/auth'
+import { saveToken, isAuthenticated } from '../lib/auth'
 
 export function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const fromLocation = (location.state as { from?: { pathname?: string } })?.from?.pathname
+  const redirectTarget = fromLocation && fromLocation !== '/' && fromLocation !== '/login' ? fromLocation : '/inbox'
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate('/inbox', { replace: true })
+    }
+  }, [navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,7 +33,7 @@ export function Login() {
 
       if (response.data?.accessToken) {
         saveToken(response.data.accessToken)
-        navigate('/')
+        navigate(redirectTarget, { replace: true })
       } else {
         setError('Login failed: No access token received.')
       }

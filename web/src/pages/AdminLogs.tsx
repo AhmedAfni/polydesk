@@ -73,7 +73,7 @@ export function AdminLogs() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
           <div className="flex items-center gap-3">
             <Link
-              to="/"
+              to="/inbox"
               className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900"
               title="Back to Inbox"
             >

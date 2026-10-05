@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Landing } from './pages/Landing'
 import { Inbox } from './pages/Inbox'
 import { TicketDetail } from './pages/TicketDetail'
 import { Login } from './pages/Login'
@@ -10,10 +11,11 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/submit" element={<SubmitTicket />} />
         <Route
-          path="/"
+          path="/inbox"
           element={
             <ProtectedRoute>
               <Inbox />
