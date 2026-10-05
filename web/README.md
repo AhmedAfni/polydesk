@@ -1,32 +1,51 @@
-# React + TypeScript + Vite
+# PolyDesk Web Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The PolyDesk web client is a single-page application built with React 19, Vite, Tailwind CSS, and Socket.io client. It delivers a support dashboard with real-time inbox updates, ticket conversation threads, agent language toggling, and AI telemetry logs.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- **Real-Time Support Inbox**: Live ticket list with dynamic urgency indicators, category tags, language pills, and AI summaries updated instantly via WebSockets.
+- **Interactive Ticket Thread**: Two-way conversation interface displaying messages automatically translated into the agent's preferred language while preserving original customer text.
+- **Multilingual Agent Replies**: Support agents can write replies in their preferred language; the system translates them automatically into the customer's language.
+- **Per-Agent Language Switching**: Instant profile language switcher allowing agents to seamlessly switch between English, Spanish, Arabic, French, Dutch, German, etc.
+- **Admin Observability Dashboard**: Visual cards and telemetry logs displaying AI request counts, success rates, average latency, task distribution, and error traces.
+- **Protected Routing & Auth**: JWT-backed authentication flow with session persistence in `localStorage`.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Environment Variables
 
-## Expanding the Oxlint configuration
+Copy `.env.example` to `.env` in the `web/` directory:
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cp .env.example .env
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+| Variable | Required | Description | Default / Example |
+| :--- | :---: | :--- | :--- |
+| `VITE_API_URL` | No | Base URL of the PolyDesk NestJS backend API & WebSocket server | `http://localhost:3000` |
+
+---
+
+## Running Standalone
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Start Development Server
+```bash
+npm run dev
+```
+The application will be accessible at `http://localhost:5173` (or the port specified by Vite).
+
+### 3. Build for Production
+```bash
+# Type-check and build production bundle
+npm run build
+
+# Preview production build locally
+npm run preview
+```
