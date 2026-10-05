@@ -101,9 +101,11 @@ To withstand cloud API limits (`429 Too Many Requests`) or transient server glit
 
 ### Prerequisites
 - **Node.js**: `v20.x` or `v22.x`
-- **PostgreSQL**: Running locally or via Docker (`localhost:5432`)
-- **Redis**: Running locally or via Docker (`localhost:6379`)
+- **PostgreSQL Database**: Free serverless Postgres project from [Neon](https://neon.tech)
+- **Redis Instance**: Free serverless Redis database from [Upstash](https://upstash.com)
 - **NVIDIA Build API Key**: Free key from [build.nvidia.com](https://build.nvidia.com/)
+
+> 💡 **Zero-Cost Cloud Stack**: There is no local database or Docker setup required. Create a free project on [Neon](https://neon.tech) for PostgreSQL and a free database on [Upstash](https://upstash.com) for Redis, then paste their connection strings into `api/.env`.
 
 ---
 
@@ -125,8 +127,8 @@ cp api/.env.example api/.env
 Ensure the following variables are configured in `api/.env`:
 ```env
 PORT=3000
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/polydesk?schema=public"
-REDIS_URL="redis://localhost:6379"
+DATABASE_URL="postgresql://user:password@ep-xyz.neon.tech/neondb?sslmode=require"
+REDIS_URL="rediss://default:password@xyz.upstash.io:6379"
 NVIDIA_API_KEY="nvapi-your-actual-nvidia-key"
 JWT_SECRET="your-secure-random-jwt-secret-key"
 ```
