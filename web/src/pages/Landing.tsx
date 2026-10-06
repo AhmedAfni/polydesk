@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { Button } from '../components/ui';
 
 export function Landing() {
   return (
@@ -24,53 +25,41 @@ export function Landing() {
           </h2>
           <ul className="space-y-2.5 text-xs text-slate-700 sm:text-sm">
             <li className="flex items-start gap-2.5">
-              <svg
-                className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <div className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <span>
                 <strong className="font-semibold text-slate-900">Real-Time Translation:</strong> Inbound messages detected and translated on demand, with outbound agent replies automatically translated back into the customer's language.
               </span>
             </li>
             <li className="flex items-start gap-2.5">
-              <svg
-                className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <div className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <span>
                 <strong className="font-semibold text-slate-900">AI Triage &amp; Classification:</strong> Automatic topic categorization, urgency scoring (low to critical), and concise English summaries.
               </span>
             </li>
             <li className="flex items-start gap-2.5">
-              <svg
-                className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <div className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <span>
                 <strong className="font-semibold text-slate-900">Per-Agent Language Preferences:</strong> Each agent selects their preferred language while retaining instant access to the customer's original text.
               </span>
             </li>
             <li className="flex items-start gap-2.5">
-              <svg
-                className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <div className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <span>
                 <strong className="font-semibold text-slate-900">Live WebSocket Updates:</strong> Instant real-time updates for new tickets and AI classification statuses across all connected agents.
               </span>
@@ -82,20 +71,24 @@ export function Landing() {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/submit"
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-xs transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="w-full flex-1"
           >
-            I'm a customer — submit a request
+            <Button variant="primary" size="md" className="w-full">
+              I'm a customer — submit a request
+            </Button>
           </Link>
           <Link
             to="/login"
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-center text-sm font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="w-full flex-1"
           >
-            I'm an agent — sign in
+            <Button variant="outline" size="md" className="w-full">
+              I'm an agent — sign in
+            </Button>
           </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Landing
+export default Landing;

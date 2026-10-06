@@ -1,60 +1,61 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { getAiLogs, type AiLogsResponse } from '../lib/queries'
-import { formatRelativeTime } from '../lib/format'
-import { clearToken } from '../lib/auth'
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAiLogs, type AiLogsResponse } from '../lib/queries';
+import { formatRelativeTime } from '../lib/format';
+import { clearToken } from '../lib/auth';
+import { Button } from '../components/ui';
 
 export function AdminLogs() {
-  const navigate = useNavigate()
-  const [data, setData] = useState<AiLogsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate();
+  const [data, setData] = useState<AiLogsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogout = () => {
-    clearToken()
-    navigate('/login')
-  }
+    clearToken();
+    navigate('/login');
+  };
 
   const fetchLogs = async (isManual = false) => {
-    if (isManual) setIsRefreshing(true)
+    if (isManual) setIsRefreshing(true);
     try {
-      const result = await getAiLogs()
-      setData(result)
-      setError(null)
+      const result = await getAiLogs();
+      setData(result);
+      setError(null);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch AI logs'
-      setError(message)
+      const message = err instanceof Error ? err.message : 'Failed to fetch AI logs';
+      setError(message);
     } finally {
-      setLoading(false)
-      if (isManual) setIsRefreshing(false)
+      setLoading(false);
+      if (isManual) setIsRefreshing(false);
     }
-  }
+  };
 
   useEffect(() => {
-    let ignore = false
+    let ignore = false;
     const load = async () => {
       try {
-        const result = await getAiLogs()
+        const result = await getAiLogs();
         if (!ignore) {
-          setData(result)
-          setError(null)
-          setLoading(false)
+          setData(result);
+          setError(null);
+          setLoading(false);
         }
       } catch (err: unknown) {
         if (!ignore) {
-          const message = err instanceof Error ? err.message : 'Failed to fetch AI logs'
-          setError(message)
-          setLoading(false)
+          const message = err instanceof Error ? err.message : 'Failed to fetch AI logs';
+          setError(message);
+          setLoading(false);
         }
       }
-    }
+    };
 
-    void load()
+    void load();
     return () => {
-      ignore = true
-    }
-  }, [])
+      ignore = true;
+    };
+  }, []);
 
   const stats = data?.stats ?? {
     totalCalls: data?.totalCalls ?? 0,
@@ -62,19 +63,19 @@ export function AdminLogs() {
     avgLatencyMs: data?.avgLatencyMs ?? 0,
     byTask: data?.byTask ?? {},
     byModel: data?.byModel ?? {},
-  }
+  };
 
-  const logs = data?.logs ?? []
+  const logs = data?.logs ?? [];
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-900">
       {/* Top Header */}
       <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <Link
               to="/inbox"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900"
               title="Back to Inbox"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,24 +84,26 @@ export function AdminLogs() {
             </Link>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-semibold leading-tight text-slate-900">
+                <h1 className="text-sm sm:text-base font-semibold leading-tight text-slate-900">
                   AI Call Logs
                 </h1>
                 <span className="rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-indigo-700">
                   Observability
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-[11px] sm:text-xs text-slate-500">
                 Track latency, success rates, and models across classifications and translations
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <Button
+              variant="outline"
               onClick={() => fetchLogs(true)}
               disabled={isRefreshing}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:opacity-50"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+              title="Refresh logs"
             >
               <svg
                 className={`h-3.5 w-3.5 text-slate-500 ${isRefreshing ? 'animate-spin' : ''}`}
@@ -115,16 +118,17 @@ export function AdminLogs() {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.038 8.038 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Refresh
-            </button>
+              <span>Refresh</span>
+            </Button>
 
-            <button
+            <Button
+              variant="outline"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs transition hover:bg-slate-50 hover:text-red-600"
-              title="Log out"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50/50 transition-colors"
+              title="Log out of PolyDesk"
             >
               <svg
-                className="h-3.5 w-3.5 text-slate-400"
+                className="h-3.5 w-3.5 text-slate-400 group-hover:text-red-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -136,25 +140,26 @@ export function AdminLogs() {
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              Log out
-            </button>
+              <span>Log out</span>
+            </Button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {/* Error Notification */}
         {error && (
           <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <div className="flex items-center justify-between">
               <p>Failed to load AI logs: {error}</p>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => fetchLogs(true)}
                 className="font-medium underline hover:text-red-900"
               >
                 Retry
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -265,7 +270,7 @@ export function AdminLogs() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <thead className="border-b border-slate-100 bg-slate-50/75 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   <tr>
                     <th scope="col" className="px-5 py-3">Task</th>
@@ -278,7 +283,7 @@ export function AdminLogs() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {logs.map((log) => {
-                    const isClassify = log.task === 'classify'
+                    const isClassify = log.task === 'classify';
                     return (
                       <tr key={log.id} className="transition-colors hover:bg-slate-50/60">
                         {/* Task */}
@@ -355,7 +360,7 @@ export function AdminLogs() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default AdminLogs
+export default AdminLogs;

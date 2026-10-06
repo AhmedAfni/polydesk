@@ -1,60 +1,62 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
-import api from '../lib/api'
-import { saveToken, isAuthenticated } from '../lib/auth'
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import api from '../lib/api';
+import { saveToken, isAuthenticated } from '../lib/auth';
+import { Input } from '../components/ui';
+import { Button } from '../components/ui';
 
 export function Login() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fromLocation = (location.state as { from?: { pathname?: string } })?.from?.pathname
-  const redirectTarget = fromLocation && fromLocation !== '/' && fromLocation !== '/login' ? fromLocation : '/inbox'
+  const fromLocation = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+  const redirectTarget = fromLocation && fromLocation !== '/' && fromLocation !== '/login' ? fromLocation : '/inbox';
 
   useEffect(() => {
     if (isAuthenticated()) {
-      navigate('/inbox', { replace: true })
+      navigate('/inbox', { replace: true });
     }
-  }, [navigate])
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
     try {
       const response = await api.post<{ accessToken: string; user: unknown }>('/auth/login', {
         email,
         password,
-      })
+      });
 
       if (response.data?.accessToken) {
-        saveToken(response.data.accessToken)
-        navigate(redirectTarget, { replace: true })
+        saveToken(response.data.accessToken);
+        navigate(redirectTarget, { replace: true });
       } else {
-        setError('Login failed: No access token received.')
+        setError('Login failed: No access token received.');
       }
     } catch (err: unknown) {
-      let message = 'Invalid email or password. Please try again.'
+      let message = 'Invalid email or password. Please try again.';
       if (typeof err === 'object' && err !== null && 'response' in err) {
-        const axiosErr = err as { response?: { data?: { message?: string | string[] } } }
-        const resMsg = axiosErr.response?.data?.message
+        const axiosErr = err as { response?: { data?: { message?: string | string[] } } };
+        const resMsg = axiosErr.response?.data?.message;
         if (resMsg) {
-          message = Array.isArray(resMsg) ? resMsg.join(', ') : resMsg
+          message = Array.isArray(resMsg) ? resMsg.join(', ') : resMsg;
         }
       }
-      setError(message)
+      setError(message);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50/60 px-4 py-12 text-slate-900 sm:px-6">
-      <div className="w-full max-w-sm rounded-xl border border-slate-200/80 bg-white p-8 shadow-xs">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50/60 px-4 py-8 text-slate-900 sm:px-6 sm:py-12">
+      <div className="w-full max-w-sm rounded-xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
         {/* Header with App Branding */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-base font-bold text-white shadow-sm shadow-indigo-200">
@@ -83,47 +85,40 @@ export function Login() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-xs font-medium text-slate-700"
-            >
+            <label htmlFor="email" className="block text-xs font-medium text-slate-700">
               Email address
             </label>
-            <input
-              id="email"
+            <Input
               type="email"
+              id="email"
               autoComplete="email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="agent@polydesk.com"
-              className="mt-1.5 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              value={email}
+              onChange={setEmail}
             />
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-xs font-medium text-slate-700"
-            >
+            <label htmlFor="password" className="block text-xs font-medium text-slate-700">
               Password
             </label>
-            <input
-              id="password"
+            <Input
               type="password"
+              id="password"
               autoComplete="current-password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="mt-1.5 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              value={password}
+              onChange={setPassword}
             />
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={isSubmitting}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full"
           >
             {isSubmitting ? (
               <>
@@ -136,20 +131,17 @@ export function Login() {
             ) : (
               <span>Sign in</span>
             )}
-          </button>
+          </Button>
         </form>
 
         <div className="mt-6 border-t border-slate-100 pt-4 text-center">
-          <Link
-            to="/submit"
-            className="text-xs font-medium text-slate-500 hover:text-indigo-600 transition"
-          >
+          <Link to="/submit" className="text-xs font-medium text-slate-500 hover:text-indigo-600 transition">
             Submit a support request instead &rarr;
           </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;

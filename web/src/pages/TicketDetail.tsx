@@ -1,127 +1,140 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getTranslatedTicket, replyToTicket, getMe } from '../lib/queries'
-import type { TranslatedTicket } from '../lib/queries'
-import { UrgencyBadge } from '../components/UrgencyBadge'
-import { StatusBadge } from '../components/StatusBadge'
-import { formatRelativeTime, getLanguageName } from '../lib/format'
-import { socket } from '../lib/socket'
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getTranslatedTicket, replyToTicket, getMe } from '../lib/queries';
+import type { TranslatedTicket } from '../lib/queries';
+import { UrgencyBadge } from '../components/UrgencyBadge';
+import { StatusBadge } from '../components/StatusBadge';
+import { formatRelativeTime, getLanguageName } from '../lib/format';
+import { socket } from '../lib/socket';
+import { Input } from '../components/ui';
+import { Button } from '../components/ui';
+import { useAppContext } from '../context/AppContext';
+import { useToast } from '../hooks/useToast';
 
 export function TicketDetail() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { setAgentLanguage } = useAppContext();
+  const { addToast } = useToast();
 
-  const [ticket, setTicket] = useState<TranslatedTicket | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [replyMessage, setReplyMessage] = useState('')
-  const [isSending, setIsSending] = useState(false)
-  const [sendError, setSendError] = useState<string | null>(null)
-  const [agentLang, setAgentLang] = useState('en')
+  const [ticket, setTicket] = useState<TranslatedTicket | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [agentLang, setAgentLang] = useState('en');
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   // Load agent's preferred language on mount
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const profile = await getMe()
-        setAgentLang(profile.preferredLanguage || 'en')
+        const profile = await getMe();
+        setAgentLanguage(profile.preferredLanguage || 'en');
+        setAgentLang(profile.preferredLanguage || 'en');
       } catch {
         // Fallback to English
+        setAgentLang('en');
       }
-    }
-    void loadProfile()
-  }, [])
+    };
+    void loadProfile();
+  }, [setAgentLanguage, setAgentLang]);
 
   const fetchTicketDetails = useCallback(async (initial = false) => {
-    if (!id) return
+    if (!id) return;
     try {
-      const data = await getTranslatedTicket(id, agentLang)
-      setTicket(data)
-      setError(null)
+      const data = await getTranslatedTicket(id, agentLang);
+      setTicket(data);
+      setError(null);
       if (initial) {
-        setTimeout(scrollToBottom, 100)
+        setTimeout(scrollToBottom, 100);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to fetch ticket'
-      setError(msg)
+      const msg = err instanceof Error ? err.message : 'Failed to fetch ticket';
+      setError(msg);
     } finally {
-      if (initial) setLoading(false)
+      if (initial) setLoading(false);
     }
-  }, [id, agentLang])
+  }, [id, agentLang]);
 
   useEffect(() => {
-    let ignore = false
+    let ignore = false;
     const load = async () => {
-      if (!id) return
+      if (!id) return;
       try {
-        const data = await getTranslatedTicket(id, agentLang)
+        const data = await getTranslatedTicket(id, agentLang);
         if (!ignore) {
-          setTicket(data)
-          setError(null)
-          setLoading(false)
-          setTimeout(scrollToBottom, 100)
+          setTicket(data);
+          setError(null);
+          setLoading(false);
+          setTimeout(scrollToBottom, 100);
         }
       } catch (err: unknown) {
         if (!ignore) {
-          const msg = err instanceof Error ? err.message : 'Failed to fetch ticket'
-          setError(msg)
-          setLoading(false)
+          const msg = err instanceof Error ? err.message : 'Failed to fetch ticket';
+          setError(msg);
+          setLoading(false);
         }
       }
-    }
+    };
 
-    void load()
+    void load();
 
-    socket.connect()
+    socket.connect();
 
     const handleTicketUpdated = (updatedTicket: any) => {
       if (updatedTicket.id === id) {
         // Re-fetch with translation when a live update arrives
-        void load()
+        void load();
       }
-    }
+    };
 
-    socket.on('ticket:updated', handleTicketUpdated)
+    socket.on('ticket:updated', handleTicketUpdated);
 
     return () => {
-      ignore = true
-      socket.off('ticket:updated', handleTicketUpdated)
-      socket.disconnect()
-    }
-  }, [id, agentLang])
+      ignore = true;
+      socket.off('ticket:updated', handleTicketUpdated);
+      socket.disconnect();
+    };
+  }, [id, agentLang, setLoading, setError, setTicket]);
 
   const handleSendReply = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    if (!id || !replyMessage.trim() || isSending) return
+    if (e) e.preventDefault();
+    if (!id || !replyMessage.trim() || isSending) return;
 
-    setIsSending(true)
-    setSendError(null)
+    setIsSending(true);
+    setSendError(null);
 
     try {
-      await replyToTicket(id, replyMessage.trim(), agentLang)
-      setReplyMessage('')
-      await fetchTicketDetails(false)
-      setTimeout(scrollToBottom, 100)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send reply'
-      setSendError(msg)
-    } finally {
-      setIsSending(false)
-    }
-  }
+      await replyToTicket(id, replyMessage.trim(), agentLang);
+      setReplyMessage('');
+      await fetchTicketDetails(false);
+      setTimeout(scrollToBottom, 100);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault()
-      handleSendReply()
+      addToast({
+        title: 'Reply Sent',
+        description: 'Your reply has been sent successfully.',
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to send reply';
+      setSendError(msg);
+    } finally {
+      setIsSending(false);
     }
-  }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      handleSendReply();
+    }
+  };
 
   if (loading) {
     return (
@@ -131,7 +144,7 @@ export function TicketDetail() {
           <p className="mt-3 text-sm text-slate-500">Loading ticket thread...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !ticket) {
@@ -145,40 +158,40 @@ export function TicketDetail() {
           </div>
           <h2 className="text-base font-semibold text-slate-900">Ticket Not Found</h2>
           <p className="mt-1 text-sm text-slate-600">{error || 'This ticket does not exist or was deleted.'}</p>
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate('/inbox')}
-            className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500"
           >
             &larr; Back to Inbox
-          </button>
+          </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50/60 text-slate-900">
       {/* Top Header */}
       <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-3">
+        <div className="mx-auto flex max-w-5xl flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3 min-w-0">
             <Link
               to="/inbox"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-xs transition hover:bg-slate-50 hover:text-slate-900"
               title="Back to Inbox"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </Link>
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-slate-400">#{ticket.id.slice(-6)}</span>
-                <h1 className="text-sm font-semibold text-slate-900 truncate max-w-[400px]">
+                <span className="text-xs font-mono text-slate-400 shrink-0">#{ticket.id.slice(-6)}</span>
+                <h1 className="text-sm font-semibold text-slate-900 truncate">
                   {ticket.subject}
                 </h1>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 truncate">
                 Customer: <span className="font-medium text-slate-700">{ticket.customer?.name || ticket.customer?.email}</span>
                 {ticket.customer?.name && (
                   <span className="text-slate-400"> ({ticket.customer.email})</span>
@@ -187,7 +200,7 @@ export function TicketDetail() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <UrgencyBadge urgency={ticket.urgency} />
             <StatusBadge status={ticket.status} />
             {ticket.topic && (
@@ -227,10 +240,10 @@ export function TicketDetail() {
             </div>
           ) : (
             ticket.messages.map((message) => {
-              const isInbound = message.direction === 'INBOUND'
-              const displayText = message.displayText || message.originalText
-              const originalText = message.originalText
-              const isTranslated = displayText !== originalText
+              const isInbound = message.direction === 'INBOUND';
+              const displayText = message.displayText || message.originalText;
+              const originalText = message.originalText;
+              const isTranslated = displayText !== originalText;
 
               return (
                 <div
@@ -309,25 +322,29 @@ export function TicketDetail() {
               </div>
             )}
 
-            <textarea
-              rows={3}
+            <Input
+              type="text"
+              placeholder={`Type your reply in ${getLanguageName(agentLang)} (it will be auto-translated to the customer's language)...`}
               value={replyMessage}
-              onChange={(e) => setReplyMessage(e.target.value)}
+              onChange={setReplyMessage}
               onKeyDown={handleKeyDown}
               disabled={isSending}
-              placeholder={`Type your reply in ${getLanguageName(agentLang)} (it will be auto-translated to the customer's language)...`}
-              className="w-full resize-none border-0 p-4 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 disabled:bg-slate-50"
+              className="h-12"
             />
 
             <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 px-4 py-2.5">
-              <span className="text-[11px] text-slate-400">
+              <span className="hidden sm:inline text-[11px] text-slate-400">
                 Press <kbd className="rounded border border-slate-300 bg-white px-1 py-0.5 font-mono text-[10px]">Ctrl</kbd> + <kbd className="rounded border border-slate-300 bg-white px-1 py-0.5 font-mono text-[10px]">Enter</kbd> to send
               </span>
+              <span className="sm:hidden text-[11px] text-slate-400">
+                Translates auto &rarr;
+              </span>
 
-              <button
+              <Button
                 type="submit"
+                variant="primary"
                 disabled={isSending || !replyMessage.trim()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                className="px-4 py-2 ml-auto"
               >
                 {isSending ? (
                   <>
@@ -345,12 +362,13 @@ export function TicketDetail() {
                     </svg>
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
       </main>
     </div>
-  )
+  );
 }
-export default TicketDetail
+
+export default TicketDetail;

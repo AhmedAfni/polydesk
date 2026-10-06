@@ -1,28 +1,24 @@
-import type { TicketStatus } from '../types/ticket'
+import type { TicketStatus } from '../types/ticket';
+import { Badge } from './ui/Badge';
 
 export function StatusBadge({ status }: { status: TicketStatus }) {
-  switch (status) {
-    case 'OPEN':
-      return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          OPEN
-        </span>
-      )
-    case 'PENDING':
-      return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-          PENDING
-        </span>
-      )
-    case 'CLOSED':
-    default:
-      return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-          <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-          CLOSED
-        </span>
-      )
-  }
+  // Map status to badge variants
+  const variantMap: Record<TicketStatus, 'default' | 'secondary'> = {
+    OPEN: 'secondary',
+    PENDING: 'secondary',
+    CLOSED: 'default',
+  };
+
+  const variant = variantMap[status] || 'default';
+
+  return (
+    <Badge variant={variant}>
+      <span className="h-1.5 w-1.5 rounded-full ${
+        status === 'OPEN' ? 'bg-emerald-500' :
+        status === 'PENDING' ? 'bg-amber-500' :
+        'bg-slate-400'
+      }" />
+      {status}
+    </Badge>
+  );
 }
