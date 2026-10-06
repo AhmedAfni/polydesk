@@ -196,6 +196,35 @@ npm run dev
 
 ---
 
+## Testing Strategy
+
+PolyDesk uses a two-tiered testing strategy with [Vitest](https://vitest.dev/) to balance local developer velocity with robust end-to-end pipeline validation:
+
+### 1. Isolated Unit Tests (`npm test`)
+- **Scope**: Targets `api/src/**/*.spec.ts`.
+- **Purpose**: Fast, isolated tests for utility logic, DTO validation, guard conditions, and controller unit boundaries.
+- **Run command**:
+  ```bash
+  cd api
+  npm test
+  ```
+
+### 2. End-to-End Integration Tests (`npm run test:integration`)
+- **Scope**: Targets `api/test/**/*.integration-spec.ts`.
+- **Purpose**: Validates the end-to-end backend pipeline against a real database (Postgres) and real NestJS modules while mocking upstream NVIDIA AI HTTP endpoints for fast, deterministic, and zero-cost test runs.
+- **What is verified**:
+  - **Full Ticket & AI Pipeline (`ticket-pipeline.integration-spec.ts`)**: Ingesting a non-English ticket via `POST /tickets`, database persistence across `Customer`, `Ticket`, and `Message`, queueing, AI processing via `MessageProcessor.process()` (updating urgency, topic, English summary, and status), and agent reply translation via `POST /tickets/:id/reply`.
+  - **Authentication Flow (`auth-flow.integration-spec.ts`)**: Agent registration, bcrypt password hashing verification in the database, JWT token generation on login, 401 on bad credentials, and route protection guards.
+  - **Arabic-Echo Bug Regression (`translation-bug-regression.integration-spec.ts`)**: Specifically tests the translation echo bug fix where LLM output echoes the input text; verifies Levenshtein similarity detection and automated retry mechanism with targeted system prompts.
+- **Database isolation**: Integration tests automatically clean up all created test records in an `afterAll` hook, keeping the database in a clean state.
+- **Run command**:
+  ```bash
+  cd api
+  npm run test:integration
+  ```
+
+---
+
 ## Known Limitations & Future Work
 
 - **Single-Tenant Architecture**: PolyDesk is currently structured as a single-organization support desk. A production SaaS evolution would introduce multi-tenancy with organization isolation, custom domain routing, and per-tenant AI API keys.
