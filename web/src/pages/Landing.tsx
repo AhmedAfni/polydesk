@@ -4,7 +4,7 @@ import { Button } from '../components/ui';
 export function Landing() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50/60 px-4 py-8 text-slate-900 sm:px-6">
-      <div className="w-full max-w-xl rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs sm:p-8">
+      <div className="w-full max-w-2xl rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs sm:p-8">
         {/* PolyDesk Logo & Header Branding */}
         <div className="flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-lg font-bold text-white shadow-md shadow-indigo-200">
@@ -71,18 +71,18 @@ export function Landing() {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/submit"
-            className="w-full flex-1"
+            className="w-full flex-1 min-w-0"
           >
-            <Button variant="primary" size="md" className="w-full">
-              I'm a customer — submit a request
+            <Button variant="primary" size="md" className="w-full px-3 sm:px-4">
+              I'm a customer - submit a request
             </Button>
           </Link>
           <Link
             to="/login"
-            className="w-full flex-1"
+            className="w-full flex-1 min-w-0"
           >
-            <Button variant="outline" size="md" className="w-full">
-              I'm an agent — sign in
+            <Button variant="outline" size="md" className="w-full px-3 sm:px-4">
+              I'm an agent - sign in
             </Button>
           </Link>
         </div>

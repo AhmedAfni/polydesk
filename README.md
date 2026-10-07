@@ -196,6 +196,22 @@ npm run dev
 
 ---
 
+## Creating Your First Agent Account
+
+Since there is no default pre-configured login credential, your first support agent account must be created via the API registration endpoint.
+
+Execute the following `curl` command in your terminal while the backend API is running:
+
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"agent@example.com","password":"yourpassword","name":"Your Name"}'
+```
+
+Once created, you can log in at `/login` (`http://localhost:5173/login`) using those credentials. Additional agent accounts can be created at any time using the same registration endpoint.
+
+---
+
 ## Testing Strategy
 
 PolyDesk uses a two-tiered testing strategy with [Vitest](https://vitest.dev/) to balance local developer velocity with robust end-to-end pipeline validation:

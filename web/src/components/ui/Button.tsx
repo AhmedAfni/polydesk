@@ -22,21 +22,21 @@ export function Button({
   ...props
 }: ButtonProps) {
   // Base styles
-  const baseClasses = 'inline-flex items-center justify-center gap-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+  const baseClasses = 'inline-flex items-center justify-center gap-2 text-sm font-medium whitespace-nowrap rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
 
   // Variant styles
   const variantClasses = {
     primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
     secondary: 'bg-slate-50 text-slate-900 hover:bg-slate-100',
-    outline: 'border border-slate-200 bg-transparent hover:bg-slate-50',
+    outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900',
     destructive: 'bg-red-600 text-white hover:bg-red-700',
   }[variant];
 
   // Size classes
   const sizeClasses = {
-    sm: 'px-3 py-1.5',
-    md: 'px-4 py-2.5',
-    lg: 'px-6 py-3',
+    sm: 'px-3 py-1.5 text-xs',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-2.5 text-base',
   }[size];
 
   // Combine all classes
