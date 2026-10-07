@@ -242,8 +242,24 @@ export function TicketDetail() {
             ticket.messages.map((message) => {
               const isInbound = message.direction === 'INBOUND';
               const displayText = message.displayText || message.originalText;
-              const originalText = message.originalText;
-              const isTranslated = displayText !== originalText;
+
+              // Secondary text block:
+              // For INBOUND: show customer's original text if different or if language exists
+              // For OUTBOUND: show translated text sent to customer
+              let secondaryText: string | null = null;
+              let secondaryLabel: string = '';
+
+              if (isInbound) {
+                if (message.originalText && (message.originalText !== displayText || message.originalLanguage)) {
+                  secondaryText = message.originalText;
+                  secondaryLabel = `Original (${getLanguageName(message.originalLanguage || 'unknown')}):`;
+                }
+              } else {
+                if (message.translatedText) {
+                  secondaryText = message.translatedText;
+                  secondaryLabel = `Sent to Customer (${getLanguageName(message.translatedLanguage || 'unknown')}):`;
+                }
+              }
 
               return (
                 <div
@@ -259,11 +275,15 @@ export function TicketDetail() {
                     </span>
                     <span>•</span>
                     <span>{formatRelativeTime(message.createdAt)}</span>
-                    {message.originalLanguage && (
+                    {(isInbound ? message.originalLanguage : message.translatedLanguage || message.originalLanguage) && (
                       <>
                         <span>•</span>
                         <span className="rounded bg-slate-100 px-1 py-0.2 text-[10px] text-slate-600">
-                          {getLanguageName(message.originalLanguage)}
+                          {getLanguageName(
+                            (isInbound
+                              ? message.originalLanguage
+                              : message.translatedLanguage || message.originalLanguage) || 'en',
+                          )}
                         </span>
                       </>
                     )}
@@ -277,13 +297,13 @@ export function TicketDetail() {
                         : 'rounded-tr-xs bg-indigo-600 text-white'
                     }`}
                   >
-                    {/* Primary display text (translated into agent's language) */}
+                    {/* Primary display text (in agent's viewing language) */}
                     <div className="whitespace-pre-wrap text-sm leading-relaxed">
                       {displayText}
                     </div>
 
-                    {/* Show original text if it differs */}
-                    {isTranslated && (
+                    {/* Secondary text (customer's original for inbound, translated text sent to customer for outbound) */}
+                    {secondaryText && (
                       <div
                         className={`mt-3 pt-2.5 border-t text-xs ${
                           isInbound
@@ -295,16 +315,16 @@ export function TicketDetail() {
                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                           </svg>
-                          Original ({getLanguageName(message.originalLanguage || 'unknown')}):
+                          {secondaryLabel}
                         </div>
                         <p className="whitespace-pre-wrap leading-relaxed">
-                          {originalText}
+                          {secondaryText}
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
-              )
+              );
             })
           )}
           <div ref={messagesEndRef} />

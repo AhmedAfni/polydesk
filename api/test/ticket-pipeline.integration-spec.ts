@@ -257,5 +257,38 @@ describe('Ticket Pipeline Integration', () => {
       where: { id: ticketId },
     });
     expect(finalTicket?.status).toBe('PENDING');
+
+    // -----------------------------------------------------------------
+    // Step 4: Regression Test - GET /tickets/:id & GET /tickets/:id/translated
+    // Verify translatedText and translatedLanguage are returned on OUTBOUND messages
+    // -----------------------------------------------------------------
+    const getTicketRes = await request(app.getHttpServer())
+      .get(`/tickets/${ticketId}`)
+      .set('Authorization', `Bearer ${agentToken}`)
+      .expect(200);
+
+    const outboundInGet = getTicketRes.body.messages.find(
+      (m: any) => m.direction === 'OUTBOUND',
+    );
+    expect(outboundInGet).toBeDefined();
+    expect(outboundInGet.translatedText).toBe(
+      'Hola María, hemos revisado su factura y procesado el reembolso del cargo duplicado.',
+    );
+    expect(outboundInGet.translatedLanguage).toBe('es');
+
+    const getTranslatedRes = await request(app.getHttpServer())
+      .get(`/tickets/${ticketId}/translated?lang=en`)
+      .set('Authorization', `Bearer ${agentToken}`)
+      .expect(200);
+
+    const outboundInTranslated = getTranslatedRes.body.messages.find(
+      (m: any) => m.direction === 'OUTBOUND',
+    );
+    expect(outboundInTranslated).toBeDefined();
+    expect(outboundInTranslated.displayText).toBe(replyPayload.message);
+    expect(outboundInTranslated.translatedText).toBe(
+      'Hola María, hemos revisado su factura y procesado el reembolso del cargo duplicado.',
+    );
+    expect(outboundInTranslated.translatedLanguage).toBe('es');
   });
 });
